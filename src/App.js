@@ -1,5 +1,6 @@
 import React from 'react';
 import './App.css';
+import moment from 'moment';
 import {
   BrowserRouter as Router,
   Switch,
@@ -13,7 +14,8 @@ class App extends React.Component {
     super(props);
 
     this.state = {
-      downloadUrlInput: ""
+      downloadUrlInput: "",
+      data: JSON.parse(window.localStorage.getItem("downloadFiles")) || [],
     };
 
     //bindings
@@ -23,15 +25,25 @@ class App extends React.Component {
 
   handleDownloadSubmit(e) {
     e.preventDefault();
-    console.log("downloading report")
     downloadReport(this.state.downloadUrlInput)
       .then(response => {
+        
+        // download the file
         const url = window.URL.createObjectURL(new Blob([response.data]));
         const link = document.createElement('a');
         link.href = url;
         link.setAttribute('download', 'file.xlsx'); //or any other extension
         document.body.appendChild(link);
         link.click();
+
+        // set download url and response date
+        response.date = moment().format('MMMM Do YYYY, h:mm:ss a');
+        response.url = url;
+
+        // save to  state for future downloads
+        this.setState({ data: 
+          [...this.state.data, response] 
+        }, () => window.localStorage.setItem("downloadFiles", JSON.stringify(this.state.data)));
       })
       .catch(err => {
         console.log("Error downloading report", err);
@@ -39,7 +51,6 @@ class App extends React.Component {
   };
 
   onDownloadFormInputChange(e) {
-    console.log(e.target.value)
     e.preventDefault();
     this.setState({
       downloadUrlInput: e.target.value
@@ -56,6 +67,7 @@ class App extends React.Component {
               <Home 
                 handleDownloadSubmit={this.handleDownloadSubmit}
                 onDownloadFormInputChange={this.onDownloadFormInputChange}
+                data={this.state.data}
               />
             </Route>
           </Switch>

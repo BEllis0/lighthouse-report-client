@@ -1,11 +1,13 @@
 import React from 'react';
 import DownloadReportForm from '../Forms/DownloadReportForm.jsx';
+import DownloadFileList from '../Lists/DownloadFileList.jsx';
 
 const Home = (props)  => {
     
     let {
         handleDownloadSubmit,
-        onDownloadFormInputChange
+        onDownloadFormInputChange,
+        data
     } = props;
 
     return (
@@ -14,6 +16,11 @@ const Home = (props)  => {
                 handleDownloadSubmit={handleDownloadSubmit}
                 onDownloadFormInputChange={onDownloadFormInputChange}
             />
+            {data.length > 0 &&
+                <DownloadFileList
+                    data={data}
+                />
+            }
         </div>
     )
 };
